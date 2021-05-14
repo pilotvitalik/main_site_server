@@ -1,6 +1,8 @@
 const http = require('http');
 const fs = require('fs');
+const path = require('path');
 const formidable = require('formidable');
+const stream = require('stream');
 require('dotenv').config()
 
 const hostname = process.env.HOSTNAME;
@@ -9,18 +11,31 @@ const port = process.env.PORT;
 const server = http.createServer((req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	if (req.url === process.env.UPLOAD_DIR && req.method === 'POST'){
-		const form = formidable({ multiples: true, uploadDir: __dirname + process.env.UPLOAD_DIR, multiples: true});
-		form.on('file', (filename, file) => {
-		  form.emit('data', { name: 'file', key: filename, value: file });
-		});
-		form.on('data', ({ name, key, value }) => {
-			fs.rename(value.path, __dirname + process.env.UPLOAD_DIR + '/' + key, (err) => {
-				if (err) console.log(err);
-			});
+		const file = path.join(__dirname, process.env.UPLOAD_DIR, '/');
+		let body = '';
+		let buffer;
+		let str;
+		let name;
+		let startName;
+		let content;
+		let arr;
+		req.on('data', (chunk) => {
+		    body += chunk.toString();
 		})
-		form.parse(req, (err, fields, files) => {
-		    res.writeHead(200, { 'content-type': 'application/json' });
-		    res.end(JSON.stringify({ fields, files }, null, 2));
+
+		req.on('end', function() {
+		  startName = body.indexOf('name=\"') + 6;
+		  name = body.slice(startName, body.indexOf('\"', startName));
+		  content = body.slice((body.indexOf('\r\n\r\n') + 4), body.indexOf('\r\n---'));
+		  arr = content.split(',');
+		  buffer = Buffer.from(arr);
+
+		  fs.writeFile(file + name, buffer, (err) => {
+		  	if (err )console.log(err);
+		  })
+
+		  res.writeHead(200, { 'content-type': 'application/json' });
+		  res.end(`файл ${name} успешно загружен`);
 		});
 	}
 })
