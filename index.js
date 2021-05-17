@@ -40,43 +40,68 @@ const server = http.createServer((req, res) => {
 				let name;
 				let startName;
 				let content;
-				let arr = [];
+				let arr;
 				let stringArr;
 				let count = 1;
-
+				let globalCount = 1;
+				//temp var
+				let tmp = [];
+				let tmpName;
 				req.on('data', (chunk) => {
 				    arr = chunk.toJSON().data; 
-				    console.log(count);
-				    if (count === 1){
-				    	name = createFile(file, arr, startFile, stopFile);
+				    stringArr = arr.join(',');
+				    //tmp = tmp.concat(chunk.toJSON().data);
+
+				    if (stringArr.includes('45,45,45')){
+				    	if (globalCount === 1){
+				    		tmpName = arr;
+				    		name = createFile(file, arr, startFile, stopFile)
+				    		count = 1;
+				    	} else if (globalCount < 3){
+				    		content = stringArr.slice(0, stringArr.indexOf(stopFile));
+				    		newContent = stringArr.slice(stringArr.indexOf(stopFile) + 6);
+				    		arr = content.split(',');
+				    		console.log(arr);
+				    		buffer = Buffer.from(arr);
+				    		fs.appendFile(file + name, buffer, (err) => {
+				    			if (err )console.log(err);
+				    		});
+				    		console.log(newContent);
+				    		arr = newContent.split(',');
+				    		arr.forEach(item => {
+				    			tmp.push(Number(item));
+				    		});
+				    		name = createFile(file, tmp, startFile, stopFile);
+				    		count = 1;
+				    	} else if (globalCount === 3) {
+				    		content = stringArr.slice(0, stringArr.indexOf(stopFile));
+				    		arr = content.split(',');
+				    		console.log(arr);
+				    		buffer = Buffer.from(arr);
+				    		fs.appendFile(file + name, buffer, (err) => {
+				    			if (err )console.log(err);
+				    		});
+				    	}
+				    	globalCount = globalCount + 1;
 				    } else {
-				    	appendFile(file, name, arr);
+				    	appendFile(file, count, name, arr, startFile, stopFile);
 				    }
-				    count = count + 1;
+				    console.log(count);
+				    count = count + 1;				    
 				})
 
 				req.on('end', function() {
-					// buffer = Buffer.from(arr);
-					// str = buffer.toString();
-					// startName = str.indexOf('name=\"') + 6;
-					// name = str.slice(startName, str.indexOf('\"', startName));
-					// stringArr = arr.join(',');
-					// content = stringArr.slice(stringArr.indexOf(startFile), stringArr.indexOf(stopFile));
-					// arr = content.split(',');
-					// buffer = Buffer.from(arr);
-
-					// fs.writeFile(file + name, buffer, (err) => {
-					// 	if (err )console.log(err);
-					// })
 
 					res.writeHead(200, { 'content-type': 'application/json' });
-					res.end(`файл ${name} успешно загружен`);
+					//res.end(`файл ${name} успешно загружен`);
+					res.end(JSON.stringify(Buffer.from(tmpName).toJSON().data.toString()));
 				});
 	}
 })
 
 function createFile(file, arr, startFile, stopFile){
 	console.log('createFile');
+	console.log(arr)
 	let buffer = Buffer.from(arr);
 	let str = buffer.toString();
 	let startName = str.indexOf('name=\"') + 6;
@@ -85,20 +110,42 @@ function createFile(file, arr, startFile, stopFile){
 	let content = stringArr.slice(stringArr.indexOf(startFile), stringArr.indexOf(stopFile));
 	arr = content.split(',');
 	buffer = Buffer.from(arr);
-
 	fs.appendFile(file + name, buffer, (err) => {
 		if (err )console.log(err);
 	})
+	console.log(name)
 
 	return name;
 }
 
-function appendFile(file, name, arr){
+function appendFile(file, count, name, arr, startFile, stopFile){
 	let buffer = Buffer.from(arr);
-	
+	//let stringArr = arr.join(',');
+	//let content;
+	//let newContent;
+	// if (stringArr.includes('45,45,45')){
+	// 	//count = 1;
+	// 	//content = stringArr.slice(0, stringArr.indexOf(stopFile));
+	// 	// newContent = stringArr.slice(stringArr.indexOf(stopFile));
+	// 	//arr = content.split(',');
+		
+	// 	console.log('добавляется старый файл')
+	// 	// fs.appendFile(file + name, buffer, (err) => {
+	// 	// 	if (err )console.log(err);
+	// 	// })
+	// 	// arr = newContent.split(',');
+	// 	createFile(file, arr, startFile, stopFile)
+	// } else {
+	// 	count = count;
+	// 	fs.appendFile(file + name, buffer, (err) => {
+	// 		if (err )console.log(err);
+	// 	})
+	// }
+	console.log(name)
 	fs.appendFile(file + name, buffer, (err) => {
-		if (err )console.log(err);
-	})
+			if (err )console.log(err);
+		})
+	//return count;
 }
 
 server.listen(port, hostname, () => {
