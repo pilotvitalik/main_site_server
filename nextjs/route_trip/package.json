@@ -1,0 +1,21 @@
+{
+  "name": "tmp-server-route-trip",
+  "version": "1.0.0",
+  "description": "Temporary server for route trip project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "keywords": [
+    "rout_trip"
+  ],
+  "author": "Vitaliy Kozhushko",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0"
+  }
+}
