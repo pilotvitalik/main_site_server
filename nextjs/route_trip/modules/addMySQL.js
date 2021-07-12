@@ -22,9 +22,12 @@ exports.add = function(req, res) {
 function insert(data, res){
   res.setHeader('Content-Type', 'text/plain');
   connection.query(
-    `INSERT INTO route(point, distance, time, speed, pointid) VALUES ('${data.title}', ${data.distance}, ${data.time}, ${data.speed}, '${data.pointId}')`,
+      `SELECT COUNT(*) FROM route`,
+    //`INSERT INTO route(point, distance, time, speed, pointid) VALUES ('${data.title}', '${data.distance}', '${data.time}', '${data.speed}', '${data.pointId}')`,
     function(err, results, fields) {
+        console.log(results);
       if (err) {
+        console.log(err);
         res.end('Возникла внутренняя ошибка сервера');
         return false;
       }
