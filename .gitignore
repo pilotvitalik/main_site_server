@@ -1,6 +1,7 @@
+/nextjs/route_trip/node_modules/
+
 /nextjs/route_trip/.env
 
-node_modules/
-
-/node/uploadFile
-/node/upload
+/nextjs/route_trip/certificate.pem
+/nextjs/route_trip/certrequest.csr
+nextjs/route_trip/privatekey.pem
