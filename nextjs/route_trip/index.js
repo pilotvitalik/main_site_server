@@ -1,5 +1,4 @@
-const https = require('https');
-const fs = require('fs');
+const http = require('http');
 const mysqlGet = require('./modules/getMySQL');
 const mysqlAdd = require('./modules/addMySQL');
 const mysqlEdit = require('./modules/editMySQL');
@@ -9,12 +8,7 @@ require('dotenv').config();
 const hostname = process.env.HOSTNAME;
 const port = process.env.PORT;
 
-const options = {
-  key: fs.readFileSync('./privatekey.pem'),
-  cert: fs.readFileSync('./certificate.pem')
-};
-
-const server = https.createServer(options, (req, res) => {
+const server = http.createServer((req, res) => {
 	console.log(req.url)
 	switch (req.url) {
 		case process.env.ADD_POINT:
@@ -33,5 +27,5 @@ const server = https.createServer(options, (req, res) => {
 })
 
 server.listen(port, hostname, () => {
-	console.log('Server https was started');
+	console.log('Server was started');
 })
