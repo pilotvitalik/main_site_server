@@ -11,7 +11,7 @@ const connection = mysql.createConnection({
 exports.get = function(res) {
   res.setHeader('Content-Type', 'text/plain');
   connection.query(
-    'SELECT * FROM `route`',
+    'SELECT * FROM `route` NATURAL JOIN `cross_point`',
     function(err, results, fields) {
       res.end(JSON.stringify(results));
     }
