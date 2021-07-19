@@ -37,9 +37,9 @@ function calcRowsTable(data, res){
 }
 
 function insert(data, count, res){
-  const queryString = `'${data.title}', '${data.distance}', '${data.time}', '${data.speed}', 'route_${count}'`;
+  const queryString = `'${data.title}', '${data.distance}', '${data.time}', '${data.speed}'`;
   connection.query(
-    `INSERT INTO route(point, distance, time, speed, point_id) VALUES (${queryString})`,
+    `INSERT INTO route(point, distance, time, speed) VALUES (${queryString})`,
     function(err, results, fields) {
       if (err) {
         console.log(err);
