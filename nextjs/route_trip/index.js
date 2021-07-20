@@ -3,6 +3,7 @@ const mysqlGet = require('./modules/getMySQL');
 const mysqlAdd = require('./modules/addMySQL');
 const mysqlEdit = require('./modules/editMySQL');
 const mysqlDelete = require('./modules/deleteMySQL');
+const checkPoit = require('./modules/checkPoint');
 require('dotenv').config();
 
 const hostname = process.env.HOSTNAME;
@@ -19,6 +20,9 @@ const server = http.createServer((req, res) => {
 			break;
 		case process.env.DELETE_POINT:
 			mysqlDelete.delete(req, res);
+			break;
+		case process.env.CHECK_POINT:
+			checkPoit.check(req, res);
 			break;
 		default:
 			mysqlGet.get(res);
