@@ -5,7 +5,8 @@ const connection = mysql.createConnection({
   host: process.env.HOST_DB,
   user: process.env.USER_DB,
   database: process.env.DB,
-  password: process.env.PASSWD_DB
+  password: process.env.PASSWD_DB,
+    multipleStatements: true
 });
 
 exports.add = function(req, res) {
@@ -31,15 +32,18 @@ function calcRowsTable(data, res){
         return false;
       }
       count = results[0]['COUNT(*)'];
-      insert(data, count + 1, res);
+      console.log(count);
+      insert(data, count + 2, res);
     }
   );
 }
 
 function insert(data, count, res){
+    console.log(count)
   const queryString = `'${data.title}', '${data.distance}', '${data.time}', '${data.speed}'`;
   connection.query(
-    `INSERT INTO route(point, distance, time, speed) VALUES (${queryString})`,
+    `INSERT INTO route(point, distance, time, speed) VALUES (${queryString});
+      INSERT INTO cross_point(id, isChecked) VALUES (${count}, false)`,
     function(err, results, fields) {
       if (err) {
         console.log(err);
