@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => {
 			checkPoit.check(req, res);
 			break;
 		case process.env.START_ID:
-			defineStartId.id(res);
+			defineStartId.id(req, res);
 			break;
 		default:
 			mysqlGet.get(res);
