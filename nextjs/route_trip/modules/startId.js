@@ -1,5 +1,4 @@
 const mysql = require('mysql2');
-//const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
@@ -13,7 +12,6 @@ const connection = mysql.createConnection({
 const globalObj = {
     minInHour: 60,
     mlsecInSec: 1000,
-    prevPointTime: '',
 };
 
 exports.id = function(req, res) {
@@ -25,82 +23,74 @@ exports.id = function(req, res) {
     req.on('end', () => {
         body = JSON.parse(body);
         globalObj.start = body.time;
-        defineStartId(res)
-        //defineStartId1(res)
+        defineStartId();
+        setTimeout(() => {
+            receiveFirstStartPeriod(globalObj.startId);
+        }, 50)
+        setTimeout(() => {
+            editAnotherPointTime(res);
+        }, 100)
     })
 };
 
-function defineStartId(res){
+function defineStartId(){
     let startId = 'SELECT MIN(id) FROM route NATURAL JOIN cross_point WHERE isChecked=false';
     let countRows = 'SELECT COUNT(*) FROM route';
     connection.query(`${startId}; ${countRows}`, function (error, results, fields) {
         if (error) throw error;
-        // `results` is an array with one element for every statement in the query:
         globalObj.startId = results[0][0]['MIN(id)'];
         globalObj.countRows = results[1][0]['COUNT(*)'];
-        for (let i = globalObj.startId; i < globalObj.countRows + 1; i++){
-            if (globalObj.startId === i){
-                receiveStartPeriod(i);
-            } else {
-                //console.log(i);
-                receiveAnotherStartPeriod(i);
-            }
-        }
-        res.end('ок');
     });
 }
 
-function receiveStartPeriod(id){
+function receiveFirstStartPeriod(id){
     let startPeriod = `SELECT time FROM route WHERE id=${id}`;
     connection.promise().query(startPeriod)
         .then (([rows, fields]) => {
-            globalObj.startPeriod = rows[0]['time'];
-            calcTime(id);
+            calcTime(id, rows[0]['time'], globalObj.start);
         })
-	.catch(console.log('error'))
-        //.then( () => connection.end());
+	.catch(console.log)
 }
 
-function receiveAnotherStartPeriod(id){
+function editAnotherPointTime(res){
+    let timerId = setTimeout(function request() {
+
+      if (globalObj.startId === globalObj.countRows) {
+        clearTimeout(timerId);
+        res.end('ок');
+        return false;
+      }
+
+      globalObj.startId = globalObj.startId + 1;
+      receiveOtherPeriod(globalObj.startId);
+
+      timerId = setTimeout(request, 50);
+    }, 50);
+}
+
+function receiveOtherPeriod(id){
     let startPeriod = `SELECT time FROM route WHERE id=${id}`;
-    connection.promise().query(startPeriod)
-        .then (([rows, fields]) => {
-            console.log(72);
-            globalObj.startPeriod = rows[0]['time'];
-            receiveAnotherStartPeriod2(id);
-            //calcTime(id);
-        })
-	.then(() => {
-		console.log(777)
-	})
-        .catch(console.log())
-        //.then(() => {calcTime(id)});
-}
-
-function receiveAnotherStartPeriod2(id){
-    console.log('receiveAnotherStartPeriod2')
     let prevPointTime = `SELECT time FROM point_time WHERE point_id=${+id - 1}`;
-    connection.promise().query(prevPointTime)
+    connection.promise().query(startPeriod)
         .then (([rows, fields]) => {
-            globalObj.start = Date.parse(rows[0]['time']);
-            //calcTime(id);
+                connection.promise().query(prevPointTime)
+                    .then (([rows1, fields1]) => {
+                            calcTime(id, rows[0]['time'], Date.parse(rows1[0]['time']));
+                    })
         })
-        .catch(console.log)
-        .then(() => {calcTime(id)});
+        .catch(console.log())
 }
 
-function calcTime(id){
-    console.log('calcTime')
-    console.log('calcTime = ', globalObj.startPeriod)
-    let period = globalObj.startPeriod * globalObj.mlsecInSec * globalObj.minInHour;
-    let stopDateMil = globalObj.start + period;
+function calcTime(id, period, startTime){
+    period = +period * globalObj.mlsecInSec * globalObj.minInHour;
+    let stopDateMil = +startTime + period;
+
     let stopDate = new Date(stopDateMil);
-    console.log(new Date(globalObj.start), period, id, stopDate);
+
     let insert = `UPDATE point_time SET time='${stopDate}' WHERE point_id=${id}`;
     connection.promise().query(insert)
         .then (([rows, fields]) => {
-            //console.log('Ура')
         })
         .catch(console.log)
-        //.then( () => connection.end());
+        .then(() => {if (id === globalObj.countRows) connection.end()});
 }
