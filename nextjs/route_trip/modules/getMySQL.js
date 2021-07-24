@@ -8,16 +8,6 @@ const connection = mysql.createConnection({
   password: process.env.PASSWD_DB
 });
 
-// exports.get = function(res) {
-//   res.setHeader('Content-Type', 'text/plain');
-//   connection.query(
-//     'SELECT * FROM `route` NATURAL JOIN `cross_point`',
-//     function(err, results, fields) {
-//       res.end(JSON.stringify(results));
-//     }
-//   );
-// };
-
 exports.get = function(res) {
   res.setHeader('Content-Type', 'text/plain');
   let mainTable = 'SELECT * FROM route';

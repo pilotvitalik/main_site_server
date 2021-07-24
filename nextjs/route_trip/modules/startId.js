@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const mysqlGet = require('./getMySQL');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
@@ -15,7 +16,6 @@ const globalObj = {
 };
 
 exports.id = function(req, res) {
-    res.setHeader('Content-Type', 'text/plain');
     let body = '';
     req.on('data', chunk => {
         body += chunk.toString();
@@ -57,7 +57,7 @@ function editAnotherPointTime(res){
 
       if (globalObj.startId === globalObj.countRows) {
         clearTimeout(timerId);
-        res.end('ок');
+        mysqlGet.get(res);
         return false;
       }
 
@@ -123,5 +123,4 @@ function insertUpdTime(id, string){
     connection.promise().query(editRow)
         .then (([rows, fields]) => {})
         .catch(console.log)
-        .then(() => {if (id === globalObj.countRows) connection.end()});
 }

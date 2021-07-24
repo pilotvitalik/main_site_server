@@ -51,8 +51,12 @@ function calcRows(res){
 }
 
 function zeroingAutoIncrement(count, res){
+  let zeroingRoute = `ALTER TABLE route AUTO_INCREMENT = ${count}`;
+  let zeroingStatus = `ALTER TABLE cross_point AUTO_INCREMENT = ${count}`;
+  let zeroingTime = `ALTER TABLE point_time AUTO_INCREMENT = ${count}`;
+  let zeroingFormatTime = `ALTER TABLE format_time AUTO_INCREMENT = ${count}`;
   connection.query(
-    `ALTER TABLE route AUTO_INCREMENT = ${count}`,
+    `${zeroingRoute}; ${zeroingStatus}; ${zeroingTime}; ${zeroingFormatTime}`,
       function(err, result, fields){
           if (err) {
               res.end('Возникла внутренняя ошибка сервера: обнуление');
