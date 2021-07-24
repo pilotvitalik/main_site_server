@@ -8,10 +8,23 @@ const connection = mysql.createConnection({
   password: process.env.PASSWD_DB
 });
 
+// exports.get = function(res) {
+//   res.setHeader('Content-Type', 'text/plain');
+//   connection.query(
+//     'SELECT * FROM `route` NATURAL JOIN `cross_point`',
+//     function(err, results, fields) {
+//       res.end(JSON.stringify(results));
+//     }
+//   );
+// };
+
 exports.get = function(res) {
   res.setHeader('Content-Type', 'text/plain');
+  let mainTable = 'SELECT * FROM route';
+  let joinTime = 'JOIN format_time ON route.id=format_time.time_id';
+  let joinCrossPoint = 'JOIN cross_point ON route.id=cross_point.id';
   connection.query(
-    'SELECT * FROM `route` NATURAL JOIN `cross_point`',
+    `${mainTable} ${joinTime} ${joinCrossPoint}`,
     function(err, results, fields) {
       res.end(JSON.stringify(results));
     }

@@ -44,10 +44,10 @@ function defineStartId(){
 }
 
 function receiveFirstStartPeriod(id){
-    let startPeriod = `SELECT time FROM route WHERE id=${id}`;
+    let startPeriod = `SELECT duration FROM route WHERE id=${id}`;
     connection.promise().query(startPeriod)
         .then (([rows, fields]) => {
-            calcTime(id, rows[0]['time'], globalObj.start);
+            calcTime(id, rows[0]['duration'], globalObj.start);
         })
 	.catch(console.log)
 }
@@ -69,13 +69,13 @@ function editAnotherPointTime(res){
 }
 
 function receiveOtherPeriod(id){
-    let startPeriod = `SELECT time FROM route WHERE id=${id}`;
+    let startPeriod = `SELECT duration FROM route WHERE id=${id}`;
     let prevPointTime = `SELECT time FROM point_time WHERE point_id=${+id - 1}`;
     connection.promise().query(startPeriod)
         .then (([rows, fields]) => {
                 connection.promise().query(prevPointTime)
                     .then (([rows1, fields1]) => {
-                            calcTime(id, rows[0]['time'], Date.parse(rows1[0]['time']));
+                            calcTime(id, rows[0]['duration'], Date.parse(rows1[0]['time']));
                     })
         })
         .catch(console.log())
@@ -90,7 +90,38 @@ function calcTime(id, period, startTime){
     let insert = `UPDATE point_time SET time='${stopDate}' WHERE point_id=${id}`;
     connection.promise().query(insert)
         .then (([rows, fields]) => {
+            formatTime(id);
         })
+        .catch(console.log)
+}
+
+function formatTime(id){
+    let receiveDate = `SELECT time FROM point_time WHERE point_id=${id}`;
+    let date;
+    let hour;
+    let minutes;
+    let dateMonth;
+    let numberMonth;
+    let year;
+    let finalString;
+    connection.promise().query(receiveDate)
+        .then (([rows, fields]) => {
+            date = new Date(rows[0]['time']);
+            hour = (String(date.getHours()).length === 1) ? `0${date.getHours()}` : date.getHours();
+            minutes = (String(date.getMinutes()).length === 1) ? `0${date.getMinutes()}` : date.getMinutes();
+            dateMonth = (String(date.getDate()).length === 1) ? `0${date.getDate()}` : date.getDate();
+            numberMonth = (String(date.getMonth()).length === 1) ? `0${date.getMonth()}` : date.getMonth();
+            year = String(date.getFullYear()).slice(2);
+            finalString =`${hour}:${minutes} ${dateMonth}.${numberMonth}.${year}`;
+            insertUpdTime(id, finalString);
+        })
+        .catch(console.log)
+}
+
+function insertUpdTime(id, string){
+    let editRow = `UPDATE format_time SET time='${string}' WHERE time_id=${id}`;
+    connection.promise().query(editRow)
+        .then (([rows, fields]) => {})
         .catch(console.log)
         .then(() => {if (id === globalObj.countRows) connection.end()});
 }
