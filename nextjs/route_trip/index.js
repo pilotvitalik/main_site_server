@@ -5,6 +5,7 @@ const mysqlEdit = require('./modules/editMySQL');
 const mysqlDelete = require('./modules/deleteMySQL');
 const checkPoit = require('./modules/checkPoint');
 const defineStartId = require('./modules/startId');
+const pauseRoute = require('./modules/pause');
 require('dotenv').config();
 
 const hostname = process.env.HOSTNAME;
@@ -27,6 +28,9 @@ const server = http.createServer((req, res) => {
 			break;
 		case process.env.START_ID:
 			defineStartId.id(req, res);
+			break;
+		case process.env.PAUSE_ROUTE:
+			pauseRoute.pause(req, res);
 			break;
 		default:
 			mysqlGet.get(res);
