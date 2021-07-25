@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const calcTime = require('./calcTime');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
@@ -15,13 +16,11 @@ exports.check = function(req, res) {
   })
   req.on('end', () => {
     body = JSON.parse(body);
-    console.log(body);
     checkPoint(body, res)
   })
 };
 
 function checkPoint(data, res){
-  res.setHeader('Content-Type', 'text/plain');
   connection.query(
     `UPDATE cross_point SET isChecked=${data.val} WHERE id=${data.id}`,
     function(err, results, fields) {
@@ -30,7 +29,7 @@ function checkPoint(data, res){
         res.end('Возникла внутренняя ошибка сервера');
         return false;
       }
-      res.end(JSON.stringify({status: data.val}));
+      calcTime.calc(data.time, res)
     }
   );
 }
