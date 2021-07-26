@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 const calcTime = require('./calcTime');
+const defineDiff = require('./diff');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
@@ -29,7 +30,8 @@ function checkPoint(data, res){
         res.end('Возникла внутренняя ошибка сервера');
         return false;
       }
-      calcTime.calc(data.time, res)
+      defineDiff.diff(data);
+      calcTime.calc(data.time, res);
     }
   );
 }

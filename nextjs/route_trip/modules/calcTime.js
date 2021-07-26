@@ -13,6 +13,7 @@ const connection = mysql.createConnection({
 const globalObj = {
     minInHour: 60,
     mlsecInSec: 1000,
+    isStartRoute: false,
 };
 
 exports.calc = function(time, res){
@@ -37,6 +38,11 @@ function defineStartId(){
 }
 
 function receiveFirstStartPeriod(id){
+    if (id === 1){
+        globalObj.isStartRoute = true;
+    } else {
+        globalObj.isStartRoute = false;
+    }
     let startPeriod = `SELECT duration FROM route WHERE id=${id}`;
     connection.promise().query(startPeriod)
         .then (([rows, fields]) => {
@@ -85,6 +91,7 @@ function calcTime(id, period, startTime){
             formatTime(id);
         })
         .catch(console.log)
+        .then(() => {if (globalObj.isStartRoute) copyInitTime(id, stopDate)})
 }
 
 function formatTime(id){
@@ -114,5 +121,22 @@ function insertUpdTime(id, string){
     let editRow = `UPDATE format_time SET time='${string}' WHERE time_id=${id}`;
     connection.promise().query(editRow)
         .then (([rows, fields]) => {})
+        .catch(console.log)
+}
+
+async function copyInitTime(id, initDate){
+    let insertInitTime = `UPDATE point_time SET init_time='${initDate}' WHERE point_id=${id}`;
+    connection.promise().query(insertInitTime)
+        .then (([rows, fields]) => {
+            zeroingDiff(id);
+        })
+        .catch(console.log)
+}
+
+async function zeroingDiff(id){
+    let zero = `UPDATE format_time SET diff='', isDelay='' WHERE time_id=${id}`;
+    connection.promise().query(zero)
+        .then (([rows, fields]) => {
+        })
         .catch(console.log)
 }

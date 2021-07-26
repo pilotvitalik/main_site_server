@@ -4,7 +4,7 @@ const mysqlAdd = require('./modules/addMySQL');
 const mysqlEdit = require('./modules/editMySQL');
 const mysqlDelete = require('./modules/deleteMySQL');
 const checkPoit = require('./modules/checkPoint');
-const defineStartId = require('./modules/startId');
+const start = require('./modules/start');
 const pauseRoute = require('./modules/pause');
 require('dotenv').config();
 
@@ -27,7 +27,7 @@ const server = http.createServer((req, res) => {
 			checkPoit.check(req, res);
 			break;
 		case process.env.START_ID:
-			defineStartId.id(req, res);
+			start.startRoute(req, res);
 			break;
 		case process.env.PAUSE_ROUTE:
 			pauseRoute.pause(req, res);

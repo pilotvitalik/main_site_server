@@ -1,7 +1,7 @@
 const calcTime = require('./calcTime');
 require('dotenv').config();
 
-exports.id = function(req, res) {
+exports.startRoute = function(req, res) {
     let body = '';
     req.on('data', chunk => {
         body += chunk.toString();
