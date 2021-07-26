@@ -77,8 +77,7 @@ function receiveOtherPeriod(id){
 function calcTime(id, period, startTime){
     period = +period * globalObj.mlsecInSec * globalObj.minInHour;
     let stopDateMil = +startTime + period;
-
-    let stopDate = new Date(stopDateMil);
+    let stopDate = new Date((id === 1) ? startTime : stopDateMil);
 
     let insert = `UPDATE point_time SET time='${stopDate}' WHERE point_id=${id}`;
     connection.promise().query(insert)
