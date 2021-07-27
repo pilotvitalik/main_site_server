@@ -32,14 +32,13 @@ function calcRowsTable(data, res){
         return false;
       }
       count = results[0]['COUNT(*)'];
-      console.log(count);
       insert(data, count + 1, res);
     }
   );
 }
 
 function insert(data, count, res){
-  const queryString = `'${data.title}', '${data.distance}', '${data.duration}', '${data.speed}'`;
+  const recSpeed = Math.round(data.distance / (data.duration / 6 / 10));
   const date = new Date();
   const actDate = new Date(date);
   const hour = (String(actDate.getHours()).length === 1) ? `0${actDate.getHours()}` : actDate.getHours();
@@ -48,8 +47,9 @@ function insert(data, count, res){
   const numberMonth = (String(actDate.getMonth()).length === 1) ? `0${actDate.getMonth()}` : actDate.getMonth();
   const year = String(actDate.getFullYear()).slice(2);
   const finalString =`${hour}:${minutes} ${dateMonth}.${numberMonth}.${year}`;
+  const queryString = `'${data.title}', '${data.distance}', '${data.duration}', '${data.speed}', '${recSpeed}'`;
 
-  const insertPoint = `INSERT INTO route(point, distance, duration, speed) VALUES (${queryString})`;
+  const insertPoint = `INSERT INTO route(point, distance, duration, speed, recommend_speed) VALUES (${queryString})`;
   const insertStatus = `INSERT INTO cross_point(id, isChecked) VALUES (${count}, false)`;
   const insertTime = `INSERT INTO point_time(time) VALUES ('${date}')`;
   const insertFormatTime = `INSERT INTO format_time(time) VALUES ('${finalString}')`;
