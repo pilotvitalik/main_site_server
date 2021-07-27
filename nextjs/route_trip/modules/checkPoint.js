@@ -31,7 +31,25 @@ function checkPoint(data, res){
         return false;
       }
       defineDiff.diff(data);
+      setActTime(data);
       calcTime.calc(data.time, res);
     }
   );
+}
+
+function setActTime(data){
+  let date = new Date(data.time);
+  let hour = (String(date.getHours()).length === 1) ? `0${date.getHours()}` : date.getHours();
+  let minutes = (String(date.getMinutes()).length === 1) ? `0${date.getMinutes()}` : date.getMinutes();
+  let dateMonth = (String(date.getDate()).length === 1) ? `0${date.getDate()}` : date.getDate();
+  let numberMonth = (String(date.getMonth()).length === 1) ? `0${date.getMonth()}` : date.getMonth();
+  let year = String(date.getFullYear()).slice(2);
+  let finalString =`${hour}:${minutes} ${dateMonth}.${numberMonth}.${year}`;
+  insertUpdTime(data.id, finalString);
+}
+function insertUpdTime(id, string){
+    let editRow = `UPDATE format_time SET time='${string}' WHERE time_id=${id}`;
+    connection.promise().query(editRow)
+        .then (([rows, fields]) => {})
+        .catch(console.log)
 }
