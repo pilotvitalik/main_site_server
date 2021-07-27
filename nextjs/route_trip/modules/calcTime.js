@@ -129,12 +129,21 @@ async function copyInitTime(id, initDate){
     connection.promise().query(insertInitTime)
         .then (([rows, fields]) => {
             zeroingDiff(id);
+            zeroingPause(id);
         })
         .catch(console.log)
 }
 
 async function zeroingDiff(id){
     let zero = `UPDATE format_time SET diff='', isDelay='' WHERE time_id=${id}`;
+    connection.promise().query(zero)
+        .then (([rows, fields]) => {
+        })
+        .catch(console.log)
+}
+
+async function zeroingPause(id){
+    let zero = `UPDATE route SET pause=false WHERE id=${id}`;
     connection.promise().query(zero)
         .then (([rows, fields]) => {
         })
